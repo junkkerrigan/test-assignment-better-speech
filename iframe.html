@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script src="https://js.stripe.com/basil/stripe.js"></script>
+  </head>
+  <body>
+    <!-- Display a payment form -->
+    <form id="payment-form">
+      <label>
+        Email
+        <input type="text" id="email" placeholder="you@example.com"
+      /></label>
+      <div type="text" id="email-errors"></div>
+      <h4>Payment</h4>
+      <div id="payment-element">
+        <!--Stripe.js injects the Payment Element-->
+      </div>
+      <button id="submit">
+        <div class="spinner hidden" id="spinner"></div>
+        <span id="button-text">Pay now</span>
+      </button>
+      <div id="payment-message" class="hidden"></div>
+    </form>
+    <script>
+        /* mostly copy-pasted from a guide in Stripe documentation */
+      const baseUrl = 'https://paavlenkoandrew.wixsite.com/velo/_functions';
+      const stripe = Stripe("pk_test_51R9nUI2f4bkDfuDDhkdzvqqaNfoPO5WSoYxyZ6oGaf1aXHpsIhJEh4Lz8rPJBmA3kwuuxZK2RX3krAI4JJIediak006rpMJ7By");
+
+      initialize();
+      let checkout;
+
+      const validateEmail = async (email) => {
+        const updateResult = await checkout.updateEmail(email);
+        const isValid = updateResult.type !== "error";
+
+        return { isValid, message: !isValid ? updateResult.error.message : null };
+      };
+
+      document
+        .querySelector("#payment-form")
+        .addEventListener("submit", handleSubmit);
+
+      async function initialize() {
+        const fetchClientSecret = () =>
+          fetch(`${baseUrl}/createCheckoutSession`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+          })
+            .then((r) => r.json())
+            .then((r) => r.clientSecret);
+
+        const appearance = {
+          theme: 'stripe',
+        };
+        checkout = await stripe.initCheckout({
+          fetchClientSecret,
+          elementsOptions: { appearance },
+        });
+
+        document.querySelector("#button-text").textContent = `Pay ${
+          checkout.session().total.total.amount
+        } now`;
+        const emailInput = document.getElementById("email");
+        const emailErrors = document.getElementById("email-errors");
+
+        emailInput.addEventListener("input", () => {
+          emailErrors.textContent = "";
+        });
+
+        emailInput.addEventListener("blur", async () => {
+          const newEmail = emailInput.value;
+          if (!newEmail) {
+            return;
+          }
+
+          const { isValid, message } = await validateEmail(newEmail);
+          if (!isValid) {
+            emailErrors.textContent = message;
+          }
+        });
+
+        const paymentElement = checkout.createPaymentElement();
+        paymentElement.mount("#payment-element");
+      }
+
+      async function handleSubmit(e) {
+        e.preventDefault();
+        setLoading(true);
+
+        const email = document.getElementById("email").value;
+        const { isValid, message } = await validateEmail(email);
+        if (!isValid) {
+          showMessage(message);
+          setLoading(false);
+          return;
+        }
+
+        const { error } = await checkout.confirm();
+        
+        showMessage(error.message);
+        setLoading(false);
+      }
+
+
+      function showMessage(messageText) {
+        const messageContainer = document.querySelector("#payment-message");
+
+        messageContainer.classList.remove("hidden");
+        messageContainer.textContent = messageText;
+
+        setTimeout(function () {
+          messageContainer.classList.add("hidden");
+          messageContainer.textContent = "";
+        }, 4000);
+      }
+
+      function setLoading(isLoading) {
+        if (isLoading) {
+          document.querySelector("#submit").disabled = true;
+          document.querySelector("#spinner").classList.remove("hidden");
+          document.querySelector("#button-text").classList.add("hidden");
+        } else {
+          document.querySelector("#submit").disabled = false;
+          document.querySelector("#spinner").classList.add("hidden");
+          document.querySelector("#button-text").classList.remove("hidden");
+        }
+      }
+    </script>
+  </body>
+</html>
