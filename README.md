@@ -4,9 +4,9 @@ This task involves setting up a personal test account on stripe to connect with 
 Use of AI is of course advised to speed coding along (we would actually love to hear how AI was used to build with)
 
 Assignment: Building a Payment Integration on Wix using Stripe Elements
-Objective:
 
-Create a Wix page that integrates Stripe's payment elements to provide multiple payment options. The integration should also include a webhook trigger to save the payment details into a Wix collection when a payment is successful.
+Objective: Create a Wix page that integrates Stripe's payment elements to provide multiple payment options. The integration should also include a webhook trigger to save the payment details into a Wix collection when a payment is successful.
+
 Requirements:
 
     Stripe Payment Integration:
