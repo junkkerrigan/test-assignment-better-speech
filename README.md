@@ -1,4 +1,4 @@
-# Specification
+# Requirements
 
 This task involves setting up a personal test account on stripe to connect with using the stripe API. 
 Use of AI is of course advised to speed coding along (we would actually love to hear how AI was used to build with)
