@@ -22,7 +22,6 @@
       <div id="payment-message" class="hidden"></div>
     </form>
     <script>
-        /* mostly copy-pasted from a guide in Stripe documentation */
       const baseUrl = 'https://paavlenkoandrew.wixsite.com/velo/_functions';
       const stripe = Stripe("pk_test_51R9nUI2f4bkDfuDDhkdzvqqaNfoPO5WSoYxyZ6oGaf1aXHpsIhJEh4Lz8rPJBmA3kwuuxZK2RX3krAI4JJIediak006rpMJ7By");
 
@@ -40,6 +39,7 @@
         .querySelector("#payment-form")
         .addEventListener("submit", handleSubmit);
 
+      // Fetches a Checkout Session and captures the client secret
       async function initialize() {
         const fetchClientSecret = () =>
           fetch(`${baseUrl}/createCheckoutSession`, {
@@ -64,6 +64,7 @@
         const emailErrors = document.getElementById("email-errors");
 
         emailInput.addEventListener("input", () => {
+          // Clear any validation errors
           emailErrors.textContent = "";
         });
 
@@ -96,11 +97,18 @@
         }
 
         const { error } = await checkout.confirm();
-        
+
+        // This point will only be reached if there is an immediate error when
+        // confirming the payment. Otherwise, your customer will be redirected to
+        // your `return_url`. For some payment methods like iDEAL, your customer will
+        // be redirected to an intermediate site first to authorize the payment, then
+        // redirected to the `return_url`.
         showMessage(error.message);
+
         setLoading(false);
       }
 
+      // ------- UI helpers -------
 
       function showMessage(messageText) {
         const messageContainer = document.querySelector("#payment-message");
@@ -114,8 +122,10 @@
         }, 4000);
       }
 
+      // Show a spinner on payment submission
       function setLoading(isLoading) {
         if (isLoading) {
+          // Disable the button and show a spinner
           document.querySelector("#submit").disabled = true;
           document.querySelector("#spinner").classList.remove("hidden");
           document.querySelector("#button-text").classList.add("hidden");
@@ -126,5 +136,6 @@
         }
       }
     </script>
+      
   </body>
 </html>

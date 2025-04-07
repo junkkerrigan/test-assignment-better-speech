@@ -16,10 +16,9 @@ export async function post_webhook(request) {
   let event;
   try {
     event = stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
-    console.log(event)
   }
   catch (error) {
-    console.error(' stripe.webhooks.constructEvent', error);
+    console.error('stripe.webhooks.constructEvent failed:', error);
     return badRequest({ body: { errorMessage: error.message } });
   }
   
